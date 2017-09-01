@@ -1,0 +1,6 @@
+pre_wet_delay,125000
+delay_time_PreWet1_valve,50000
+Prewet2_Offset,0
+delay_time_CNT_valve,0
+reps,1
+delayrep,5000

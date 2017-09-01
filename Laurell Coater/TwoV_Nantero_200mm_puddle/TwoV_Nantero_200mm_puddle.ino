@@ -1,6 +1,6 @@
 int PreWet1_valve =7; //flow valve is on pin 7, can not be changed
 int PreWet2_valve =5; //vaccum valve is on pin 6, can not be changed
-int CNTDispense_valve = 6; //CNT valve is on pin 5, can not be changed
+int CNTDispense_valve = 8; //CNT valve is on pin 5, can not be changed
 char junk;
 
 //############1###1111#####11111 111 111111# #11112111#1111111e1#1##1########
@@ -13,16 +13,17 @@ char junk;
 //  2.5ml = 3250ms
 //  2.0ml = 2690ms
 //##########################################################
+  float pre_wet_delay = 0000;
 // how much delay time of PreWet1_valve, count in milisecond
-  int delay_time_PreWet1_valve=     2000;  //(10000=10 second, 1000=1 second)
+  float delay_time_PreWet1_valve=     2000;  //(10000=10 second, 1000=1 second)
 // how much delay time of PreWet2_valve, count in milisecond
-  int delay_time_CNT_valve =        2000;    // 6 seconds
+  float delay_time_CNT_valve =        2000;    // 6 seconds
 // how many times to repeat
   int reps =       1;
 // delay between reps  
-  int delayrep =               2000;
+  float delayrep =               2000;
 // Between Puddle Coat Delay  
-  int BetweenCoatDelay =       2300;
+  float BetweenCoatDelay =       2300;
 //#######################################
 //#######################################
 
@@ -45,7 +46,8 @@ if( Serial.read()=='2')
 void CoatSequence()
 {
   Serial.println("operation is being started, press 2 to stop process if needed");
-         
+
+            delay(pre_wet_delay);  //wait how much sec
             //Prewets On
            if (delay_time_PreWet1_valve > 0 ) 
                 {
@@ -110,11 +112,13 @@ void loop()
 {
     while(Serial.available() == 0);
     String information = Serial.readStringUntil("\n");
-    String pre = getValue(information, ',', 0);
-    String del = getValue(information, ',', 1);
-    String CNT = getValue(information, ',', 2);
-    String rep = getValue(information, ',', 3);
-    String repdelay = getValue(information, ',', 4);
+    String prediw = getValue(information, ',', 0);
+    String pre = getValue(information, ',', 1);
+    String del = getValue(information, ',', 2);
+    String CNT = getValue(information, ',', 3);
+    String rep = getValue(information, ',', 4);
+    String repdelay = getValue(information, ',', 5);
+    pre_wet_delay = prediw.toFloat();
     delay_time_PreWet1_valve = pre.toFloat();
     BetweenCoatDelay = del.toInt();
     delay_time_CNT_valve = CNT.toFloat();

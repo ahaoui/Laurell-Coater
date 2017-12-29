@@ -8,17 +8,66 @@ import serial.tools.list_ports
 ######################################################################
 class MyApp(object):
     """"""
+    
+#---------------------------------------------------------------------
+    def __init__(self,Laurell):
+        """initialize porgram and all"""
+        self.root =  Laurell
+        root.title("Laurel Coater")
+        init = Text(root, height = 3, width = 30)
+        init.pack()
+        init.insert(END, "Welcome to the Laurell Coater Program Version 3.1"
+                    + "\nPress OK to start")
+        initbutton = Button(root, text="OK", command=self.transition, height = 5,
+                       width = 10)
+        initbutton.pack()
 
 #---------------------------------------------------------------------
-    def __init__(self, parent):
+    def transition(self):
+        self.hide()
+        self.waferchoice()
+
+#---------------------------------------------------------------------
+    def transition2(self, parent):
+        parent.destroy()
+        self.waferchoice()
+
+#---------------------------------------------------------------------
+    def transition3(self, option, relaysused):
+        option.destroy()
+        self.constructor(relaysused)
+
+#---------------------------------------------------------------------
+    def waferchoice(self):
+        """Choose wafer size 200mm/300mm"""
+        option = Toplevel()
+        option.title("Laurell Coater")
+        option.geometry("300x75")
+        labelframe = LabelFrame(option,text = "Choose wether you are running "
+                                + "one or both relays:")
+        labelframe.pack(fill="both", expand="yes")
+        start1relay = lambda *args: self.transition3(option, 1)
+        start2relay = lambda *args: self.transition3(option, 2) 
+        relayone = Button(labelframe, text="Mono Relay", command = start1relay, height = 1,
+                       width = 10)
+        relayone.pack()
+        relaytwo = Button(labelframe, text="Dual Relays", command = start2relay, height = 1,
+                       width = 10)
+        relaytwo.pack()
+
+#---------------------------------------------------------------------
+    def constructor(self, relaysused):
         """Constructor"""
-        self.root =  parent
-        root.title("Laurell Coater")
-        labelframe1 = LabelFrame(root, text="Preperations for coating substrates:")
+        print (relaysused)
+        parent = Toplevel()
+        parent.title("Laurell Coater")
+        parent.geometry("280x425")
+        labelframe1 = LabelFrame(parent, text="Preperations for coating substrates:")
         labelframe1.pack(fill="both", expand="yes")
         global Process
         Process = IntVar()
-        r1 = Radiobutton(labelframe1, text="Wet the lines", variable=Process, value=0)
+        r1 = Radiobutton(labelframe1, text="Wet the lines", variable=Process,
+                         value=0)
         r2 = Radiobutton(labelframe1, text="CNT flow rate check",
                          variable=Process, value=1)
         r3 = Radiobutton(labelframe1, text="Water dispense flow rate check"
@@ -27,20 +76,23 @@ class MyApp(object):
                          value=3)
         r5 = Radiobutton(labelframe1, text="1x Coat", variable=Process, value=4)
 
-        labelframe2 = LabelFrame(root, text="Procedures for cleaning the line:")
+        labelframe2 = LabelFrame(parent, text="Procedures for cleaning the line:")
         labelframe2.pack(fill="both", expand="yes")
         r7 = Radiobutton(labelframe2, text="1st Water rinse", variable=Process,
                          value=6)
         r8 = Radiobutton(labelframe2, text="Base rinse", variable=Process,
                          value=7)
-        r9 = Radiobutton(labelframe2, text="2nd Water rinse", variable=Process, value=8)
-        r10 = Radiobutton(labelframe2, text="Blow Dry (only at end of the day)", variable=Process, value=9)
-        labelframe3 = LabelFrame(root, text="Special procedures:")
+        r9 = Radiobutton(labelframe2, text="2nd Water rinse", variable=Process,
+                         value=8)
+        r10 = Radiobutton(labelframe2, text="Blow Dry (only at end of the day)",
+                          variable=Process, value=9)
+        labelframe3 = LabelFrame(parent, text="Special procedures:")
         labelframe3.pack(fill="both", expand="yes")
         r6 = Radiobutton(labelframe3, text="1x Hand Coat", variable=Process, value=5)
-        r11 = Radiobutton(labelframe3, text="3% NH4OH treatment", variable=Process, value=10)
-        r12 = Radiobutton(labelframe3, text="Wafer DIW rinse and spin dry", variable=Process,
-                          value=11)
+        r11 = Radiobutton(labelframe3, text="3% NH4OH treatment", variable=Process,
+                          value=10)
+        r12 = Radiobutton(labelframe3, text="Wafer DIW rinse and spin dry",
+                          variable=Process, value=11)
         r1.grid(row=1,column=1,sticky = W)
         r2.grid(row=3,column=1,sticky = W)
         r3.grid(row=2,column=1,sticky = W)
@@ -53,15 +105,37 @@ class MyApp(object):
         r10.grid(row=9,column=1,sticky = W)
         r11.grid(row=10,column=1,sticky = W)
         r12.grid(row=11,column=1,sticky = W)
-        master_button = Button(labelframe3,text ="Master Mode", command = self.password)
-        submit_button = Button(labelframe3,text ="Submit",command = self.execute)
+        gopassword = lambda *args: self.password(parent, relaysused)
+        goexecute = lambda *args: self.execute(parent, relaysused)
+        changerelaynumber = lambda *args: self.transition2(parent)
+        master_button = Button(labelframe3,text ="Master Mode", command = gopassword,
+                               height = 1, width = 12)
+        submit_button = Button(labelframe3,text ="Submit",command = goexecute,
+                               height = 1, width = 12)
+        option_button = Button(labelframe3, text ="Relay Mode",
+                               command = changerelaynumber, height = 1, width = 12)
+        exit_button = Button(labelframe3, text ="Exit", fg = "red",
+                             command = self.exit_program, height = 1, width = 12)
         master_button.grid(row =13, column =1,sticky = W)
         submit_button.grid(row =13, column =2,sticky = W)
+        option_button.grid(row =14, column =1,sticky = W)
+        exit_button.grid(row =14, column =2,sticky = W)
 
-    #----------------------------------------------------------------------
-    def password(self):
+#----------------------------------------------------------------------
+    def exit_program(self):
+        """close program"""
+        exit()
+
+#----------------------------------------------------------------------
+    def Exit(self, custom, relaysused):
+        """close program"""
+        custom.destroy()
+        self.constructor(relaysused)
+
+#----------------------------------------------------------------------
+    def password(self, parent, relaysused):
         """Attempt to enter Master Mode"""
-        self.hide()
+        parent.destroy()
         password = Toplevel()
         password.geometry("300x75")
         password.title("Laurell Coater")
@@ -69,32 +143,33 @@ class MyApp(object):
         labelframe.pack(fill="both", expand="yes")
         password.PASS = Entry(labelframe, show="*")
         password.PASS.grid(row = 1, column = 1, sticky = W)
-        Validate = lambda *args: self.validate(password)
-        unValidate = lambda *args: self.unvalidate(password)
+        Validate = lambda *args: self.validate(password, parent, relaysused)
+        unValidate = lambda *args: self.unvalidate(password, relaysused)
         password.submit_button = Button(labelframe, text="Log in", command = Validate)
         password.submit_button.grid(row = 2, column = 2, sticky =  W)
         password.cancel = Button(labelframe, text="Cancel", command = unValidate)
         password.cancel.grid(row = 2, column = 1, sticky =  W)
 
-    #----------------------------------------------------------------------
-    def unvalidate(self,password):
+#----------------------------------------------------------------------
+    def unvalidate(self, password, relaysused):
+        """exit master mode"""
         password.destroy()
-        self.show()
+        self.constructor(relaysused)
         
-    #----------------------------------------------------------------------
-    def validate(self,password):
+#----------------------------------------------------------------------
+    def validate(self, password, parent, relaysused):
         """validate password and log in"""
         if(password.PASS.get() == "Boss"):
             password.destroy()
             tkMessageBox.showinfo("Laurell coater","Log on successful!")
-            self.custom()
+            self.custom(relaysused)
         else:
             password.destroy()
             tkMessageBox.showinfo("Laurell coater","Log on Failed. Try again.")
-            self.password()
-        
-    #----------------------------------------------------------------------
-    def custom(self):
+            self.password(parent, relaysused)
+
+#----------------------------------------------------------------------
+    def custom(self, relaysused):
         """Custom Laurell Timers"""
         self.hide()
         Custom =  Toplevel()
@@ -132,21 +207,16 @@ class MyApp(object):
         Custom.Delay = Entry(labelframe)
         Custom.Delay.grid(row = 6,column = 2, sticky = W)
         Custom.Delay.insert(0,"5000")
-        customexecute = lambda *args: self.customaction(Custom)
+        customexecute = lambda *args: self.customaction(Custom, relaysused)
         Custom.submit_button = Button(labelframe, text="Submit", command = customexecute)
         Custom.submit_button.grid(row = 7, column = 3, columnspan = 2, sticky = W)
-        exitcommand = lambda *args: self.Exit(Custom)
+        exitcommand = lambda *args: self.Exit(Custom, relaysused)
         Custom.cancel = Button(labelframe, text="Cancel", command = exitcommand)
         Custom.cancel.grid(row = 7, column = 2, sticky = W)
         Custom.mainloop()
 
-    #----------------------------------------------------------------------
-    def Exit(self, Custom):
-        Custom.destroy()
-        self.show()
-        
-    #----------------------------------------------------------------------
-    def customaction(self, Custom):
+#----------------------------------------------------------------------
+    def customaction(self, Custom, relaysused):
         """Custom execute Laurell Timers"""
         predel = Custom.Predel.get()
         if (int(predel) < 1000):
@@ -172,7 +242,7 @@ class MyApp(object):
         #open serial
         ser = serial.Serial(port,9600)
         time.sleep(2)
-        string = (str(predel)+","+str(pre)+","+str(CNTDel)+","+str(cnt)+","+str(rep)+","+str(delay))
+        string = (str(relaysused)+","+str(predel)+","+str(pre)+","+str(CNTDel)+","+str(cnt)+","+str(rep)+","+str(delay))
         print(string + "\n")
         #send data
         ser.write(string)
@@ -192,12 +262,12 @@ class MyApp(object):
                 text.insert(INSERT, "Step: " + str(int(rep)-reps+1))
                 text.pack()
                 print(ser.readline()) #opertaion being started
-                if (pre != "0"):
+                if (pre > 0):
                     print(ser.readline()) #Prewet 1 ON
                 print(ser.readline()) #CNT Dispense OFF
                 print(ser.readline()) #Prewet Dispense Time (ms):
                 print(ser.readline()) #Prewet 1 Off
-                if (cnt != "0"):
+                if (cnt > 0):
                     print(ser.readline()) #CNT Dispense ON
                     print(ser.readline()) #CNT Dispense Time (ms):
                 print(ser.readline()) #CNT Dispense OFF
@@ -209,11 +279,11 @@ class MyApp(object):
                 extra.destroy()
             tkMessageBox.showinfo("Laurell coater",ser.readline())
             ser.close()
-            self.show()
+            self.custom(relaysused)
         
-    #----------------------------------------------------------------------
-    def execute(self):
-        self.hide()
+#----------------------------------------------------------------------
+    def execute(self, parent, relaysused):
+        parent.destroy()
         times=[]
         print("Procedure " + str(Process.get()) + " Selected")
         if (Process.get() == 0):
@@ -259,7 +329,7 @@ class MyApp(object):
         #open serial
         ser = serial.Serial(port,9600)
         time.sleep(2)
-        string = str(times[0]) + "," + str(times[1]) + "," +  str(times[2]) + "," +  str(times[3]) + "," +  str(times[4] + "," + str(times[5]))
+        string = str(relaysused) + "," + str(times[0]) + "," + str(times[1]) + "," +  str(times[2]) + "," +  str(times[3]) + "," +  str(times[4] + "," + str(times[5]))
         print(string + "\n")
         #send data
         ser.write(string)
@@ -286,7 +356,7 @@ class MyApp(object):
                 print(ser.readline()) #CNT Dispense OFF
                 print(ser.readline()) #Prewet Dispense Time (ms):
                 print(ser.readline()) #Prewet 1 Off
-                if (times[3] != "0"):
+                if (times[3] > "0"):
                     print(ser.readline()) #CNT Dispense ON
                     print(ser.readline()) #CNT Dispense Time (ms):
                 print(ser.readline()) #CNT Dispense OFF
@@ -360,21 +430,22 @@ class MyApp(object):
                         extra.destroy()
                     tkMessageBox.showinfo("Laurell coater",ser.readline())
                     ser.close()
-        self.show()
-
-    #----------------------------------------------------------------------
+        self.constructor(relaysused)
+        
+#----------------------------------------------------------------------
     def hide(self):
         """Hide the main window"""
         self.root.withdraw()
 
-    #----------------------------------------------------------------------
+#----------------------------------------------------------------------
     def show(self):
         """Reshow the main window"""
         self.root.update()
         self.root.deiconify()
 
+        
 if __name__ == "__main__":
     root = Tk()
-    root.geometry("250x400")
+    root.geometry("300x100")
     app = MyApp(root)
     root.mainloop()

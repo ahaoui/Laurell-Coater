@@ -1,7 +1,8 @@
-int PreWet1_valve =7; //flow valve is on pin 7, can not be changed
-int PreWet2_valve =5; //vaccum valve is on pin 6, can not be changed
-int CNTDispense_valve = 8; //CNT valve is on pin 5, can not be changed
+int PreWet1_valve =8; //flow valve is on pin 7, can not be changed
+int PreWet2_valve =10; //vaccum valve is on pin 6, can not be changed
+int CNTDispense_valve = 7; //CNT valve is on pin 5, can not be changed
 char junk;
+int numberofvalves;
 
 //############1###1111#####11111 111 111111# #11112111#1111111e1#1##1########
 //the following parameters can be changed
@@ -16,6 +17,8 @@ char junk;
   float pre_wet_delay = 0000;
 // how much delay time of PreWet1_valve, count in milisecond
   float delay_time_PreWet1_valve=     2000;  //(10000=10 second, 1000=1 second)
+// how much Additional Offset time for PreWet2_valve, count in milisecond
+  int Prewet2_Offset=          000;   //(500= 0.5 second)
 // how much delay time of PreWet2_valve, count in milisecond
   float delay_time_CNT_valve =        2000;    // 6 seconds
 // how many times to repeat
@@ -45,14 +48,19 @@ if( Serial.read()=='2')
 
 void CoatSequence()
 {
-  Serial.println("operation is being started, press 2 to stop process if needed");
+  Serial.print("operation is being started, using  ");
+  Serial.print(numberofvalves);
+  Serial.println(" valves");
 
             delay(pre_wet_delay);  //wait how much sec
             //Prewets On
            if (delay_time_PreWet1_valve > 0 ) 
                 {
-                digitalWrite(PreWet1_valve,HIGH); Serial.println("Prewet 1 ON"); //Sets state of relay1
-                 
+                digitalWrite(PreWet1_valve,HIGH); Serial.println("Prewet ON"); //Sets state of relay1
+                if (numberofvalves == 2)
+                {
+                  digitalWrite(PreWet2_valve,HIGH);//Sets state of relay2
+                }
                 } 
             
             digitalWrite(CNTDispense_valve,LOW); Serial.println("CNT Dispense OFF");  //SET state of relay3
@@ -61,7 +69,11 @@ void CoatSequence()
                 delay(delay_time_PreWet1_valve);  //wait how much sec
                 
             //Prewet One Off
-            digitalWrite(PreWet1_valve,LOW); Serial.println("Prewet 1 Off"); //turns off relay1
+            digitalWrite(PreWet1_valve,LOW); Serial.println("Prewet Off"); //turns off relay1
+            if (numberofvalves == 2)
+            {
+              digitalWrite(PreWet2_valve,LOW);//turns off relay2
+            }
             
             //Between Coat Delay
             delay(BetweenCoatDelay);
@@ -112,12 +124,14 @@ void loop()
 {
     while(Serial.available() == 0);
     String information = Serial.readStringUntil("\n");
-    String prediw = getValue(information, ',', 0);
-    String pre = getValue(information, ',', 1);
-    String del = getValue(information, ',', 2);
-    String CNT = getValue(information, ',', 3);
-    String rep = getValue(information, ',', 4);
-    String repdelay = getValue(information, ',', 5);
+    String valvenumber = getValue(information, ',', 0);
+    String prediw = getValue(information, ',', 1);
+    String pre = getValue(information, ',', 2);
+    String del = getValue(information, ',', 3);
+    String CNT = getValue(information, ',', 4);
+    String rep = getValue(information, ',', 5);
+    String repdelay = getValue(information, ',', 6);
+    numberofvalves = valvenumber.toInt();
     pre_wet_delay = prediw.toFloat();
     delay_time_PreWet1_valve = pre.toFloat();
     BetweenCoatDelay = del.toInt();
